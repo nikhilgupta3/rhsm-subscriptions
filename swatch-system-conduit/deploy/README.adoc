@@ -1,0 +1,13 @@
+~/.config/bonfire/config.yaml example
+```yaml
+apps:
+- name: swatch-system-conduit
+  components:
+    - name: swatch-system-conduit
+      host: local
+      repo: /home/lburnett/code/rhsm-subscriptions/swatch-system-conduit
+      path: /deploy/clowdapp.yaml
+      parameters:
+          REPLICAS: 1
+          swatch-system-conduit/IMAGE: quay.io/cloudservices/swatch-system-conduit
+```
