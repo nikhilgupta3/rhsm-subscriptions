@@ -50,3 +50,7 @@ deploy/secrets.yaml
 .cicd_bootstrap.sh
 .podman/
 bonfire/
+.bonfire/
+.docker/
+.kube/
+
