@@ -26,7 +26,9 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
+import org.candlepin.subscriptions.db.OfferingRepository;
 import org.candlepin.subscriptions.db.SubscriptionCapacityViewRepository;
+import org.candlepin.subscriptions.db.SubscriptionRepository;
 import org.candlepin.subscriptions.db.model.ServiceLevel;
 import org.candlepin.subscriptions.db.model.SubscriptionCapacityView;
 import org.candlepin.subscriptions.db.model.Usage;
@@ -42,15 +44,21 @@ import org.springframework.stereotype.Service;
 public class SubscriptionTableController {
 
   private final SubscriptionCapacityViewRepository subscriptionCapacityViewRepository;
-  private final ApplicationClock clock;
+  private final SubscriptionRepository subscriptionRepository;
+  private final OfferingRepository offeringRepository;
   private final TagProfile tagProfile;
+  private final ApplicationClock clock;
 
   @Autowired
   SubscriptionTableController(
       SubscriptionCapacityViewRepository subscriptionCapacityViewRepository,
+      SubscriptionRepository subscriptionRepository,
+      OfferingRepository offeringRepository,
       TagProfile tagProfile,
       ApplicationClock clock) {
     this.subscriptionCapacityViewRepository = subscriptionCapacityViewRepository;
+    this.subscriptionRepository = subscriptionRepository;
+    this.offeringRepository = offeringRepository;
     this.tagProfile = tagProfile;
     this.clock = clock;
   }
@@ -126,6 +134,12 @@ public class SubscriptionTableController {
     boolean isOnDemand = tagProfile.tagIsPrometheusEnabled(productId.toString());
     SubscriptionType subscriptionType =
         isOnDemand ? SubscriptionType.ON_DEMAND : SubscriptionType.ANNUAL;
+
+    var productNames = tagProfile.getOfferingProductNamesForTag(productId.toString());
+    var offering = offeringRepository.findByProductName(productNames.iterator().next());
+    var subscription =
+    var onDemandCapacityReport = new SkuCapacity();
+
 
     return new SkuCapacityReport()
         .data(reportItems)

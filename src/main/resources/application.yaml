@@ -76,7 +76,7 @@ rhsm-subscriptions:
   subscription-sync-enabled: ${SUBSCRIPTION_SYNC_ENABLED:false}
   subscription:
     use-stub: ${SUBSCRIPTION_USE_STUB:false}
-    url: ${SUBSCRIPTION_URL:https://subscription.qa.api.redhat.com/svcrest/subscription/v5}
+    url: ${SUBSCRIPTION_URL:https://subscription.stage.api.redhat.com/svcrest/subscription/v5}
     keystore: file:${SUBSCRIPTION_KEYSTORE:}
     keystore-password: ${SUBSCRIPTION_KEYSTORE_PASSWORD:changeit}
     max-connections: ${SUBSCRIPTION_MAX_CONNECTIONS:100}
