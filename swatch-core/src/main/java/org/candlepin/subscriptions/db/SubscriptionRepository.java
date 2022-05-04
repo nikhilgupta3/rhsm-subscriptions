@@ -21,22 +21,35 @@
 package org.candlepin.subscriptions.db;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.candlepin.subscriptions.db.model.BillingProvider;
+import org.candlepin.subscriptions.db.model.Offering;
+import org.candlepin.subscriptions.db.model.Offering_;
+import org.candlepin.subscriptions.db.model.ServiceLevel;
 import org.candlepin.subscriptions.db.model.Subscription;
+import org.candlepin.subscriptions.db.model.SubscriptionCapacityKey_;
+import org.candlepin.subscriptions.db.model.SubscriptionCapacityView;
+import org.candlepin.subscriptions.db.model.SubscriptionCapacityView_;
+import org.candlepin.subscriptions.db.model.Subscription_;
+import org.candlepin.subscriptions.db.model.Usage;
 import org.candlepin.subscriptions.tally.UsageCalculation;
+import org.candlepin.subscriptions.utilization.api.model.Uom;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 /** Repository for Subscription Entities */
 public interface SubscriptionRepository
-    extends JpaRepository<Subscription, Subscription.SubscriptionCompoundId> {
+    extends JpaRepository<Subscription, Subscription.SubscriptionCompoundId>,
+    JpaSpecificationExecutor<Subscription> {
 
   @Query(
       "SELECT s FROM Subscription s where s.endDate > CURRENT_TIMESTAMP "
@@ -66,4 +79,85 @@ public interface SubscriptionRepository
   void deleteBySubscriptionId(String subscriptionId);
 
   void deleteByAccountNumber(String accountNumber);
+
+
+  default List<Subscription> findOnDemandBy(
+      String ownerId,
+      String productName,
+      ServiceLevel serviceLevel,
+      Usage usage,
+      OffsetDateTime reportStart,
+      OffsetDateTime reportEnd) {
+
+    return findAll(
+        OnDemandSubscriptionSpecification.builder()
+            .criteria(
+                buildOnDemandSearchCriteria(
+                    ownerId, productName, serviceLevel, usage, reportStart, reportEnd))
+            .build());
+  }
+
+  private List<SearchCriteria> defaultOnDemandSearchCriteria(String ownerId, String productName) {
+    return new ArrayList<>(
+        List.of(
+            SearchCriteria.builder()
+                .key(Subscription_.ownerId.getName())
+                .operation(SearchOperation.EQUAL)
+                .value(ownerId)
+                .build(),
+            SearchCriteria.builder()
+                .key(Offering_.productName.getName())
+                .operation(SearchOperation.EQUAL)
+                .value(productName)
+                .build()));
+  }
+
+  private List<SearchCriteria> searchCriteriaForReportDuration(
+      OffsetDateTime reportStart, OffsetDateTime reportEnd) {
+    return List.of(
+        SearchCriteria.builder()
+            .key(SubscriptionCapacityView_.beginDate.getName())
+            .operation(SearchOperation.BEFORE_OR_ON)
+            .value(reportEnd)
+            .build(),
+        SearchCriteria.builder()
+            .key(SubscriptionCapacityView_.endDate.getName())
+            .operation(SearchOperation.AFTER_OR_ON)
+            .value(reportStart)
+            .build());
+  }
+
+  private SearchCriteria searchCriteriaMatchingSLA(ServiceLevel serviceLevel) {
+    return SearchCriteria.builder()
+        .key(Offering_.serviceLevel.getName())
+        .operation(SearchOperation.EQUAL)
+        .value(serviceLevel)
+        .build();
+  }
+
+  private SearchCriteria searchCriteriaMatchingUsage(Usage usage) {
+    return SearchCriteria.builder()
+        .key(Offering_.usage.getName())
+        .operation(SearchOperation.EQUAL)
+        .value(usage)
+        .build();
+  }
+
+
+  private List<SearchCriteria> buildOnDemandSearchCriteria(
+      String ownerId,
+      String productId,
+      ServiceLevel serviceLevel,
+      Usage usage,
+      OffsetDateTime reportStart,
+      OffsetDateTime reportEnd) {
+
+    List<SearchCriteria> searchCriteria = defaultOnDemandSearchCriteria(ownerId, productId);
+    if (Objects.nonNull(serviceLevel) && !serviceLevel.equals(ServiceLevel._ANY))
+      searchCriteria.add(searchCriteriaMatchingSLA(serviceLevel));
+    if (Objects.nonNull(usage) && !usage.equals(Usage._ANY))
+      searchCriteria.add(searchCriteriaMatchingUsage(usage));
+    searchCriteria.addAll(searchCriteriaForReportDuration(reportStart, reportEnd));
+    return searchCriteria;
+  }
 }
