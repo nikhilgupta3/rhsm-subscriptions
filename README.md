@@ -390,6 +390,30 @@ oc process -f templates/rhsm-subscriptions-scheduler.yml | oc create -f -
 oc process -f templates/rhsm-subscriptions-worker.yml | oc create -f -
 ```
 
+### OpenShift Objects
+#### CronJob
+- metrics-cron
+- offering-sync
+- rhsm-conduit-cron-sync
+- rhsm-subscriptions-cron-hourly-tally
+- rhsm-subscriptions-cron-purge
+- rhsm-subscriptions-cron-tally
+- rhsm-subscriptions-egress
+- subscription-sync
+
+#### Deployment
+- gabi
+- swatch-producer-aws-service
+
+#### DeploymentConfig
+- metrics-worker
+- rhsm-auto-registration-listener
+- rhsm-conduit
+- rhsm-subscriptions-api
+- rhsm-subscriptions-capacity-ingress
+- rhsm-subscriptions-worker
+- swatch-billing-provider-rh-marketplace
+
 </details>
 
 ## Release Process
