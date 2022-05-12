@@ -171,12 +171,15 @@ We have a number of profiles. Each profile activates a subset of components in t
 - `capture-snapshots`: Run the tally job and exit
 - `kafka-queue`: Run with a kafka queue (instead of the default in-memory queue)
 - `liquibase-only`: Run the Liquibase migrations and stop
-- `rh-marketplace`: Run the worker responsible for processing tally summaries and
-  emitting usage to Red Hat Marketplace.
 - `metering-jmx`: Expose the JMX bean to create metering jobs
 - `metering-job`: Create metering jobs and place them on the job queue
+- `offering-sync`: 
 - `openshift-metering-worker`: Process OpenShift metering jobs off the job queue
+- `orgsync`: 
 - `purge-snapshots`: Run the retention job and exit
+- `rh-marketplace`: Run the worker responsible for processing tally summaries and emitting usage to Red Hat Marketplace.
+- `subscription-sync`:
+- `test-kafka`:
 - `worker`: Process jobs off the job queue
 
 These can be specified most easily via the `SPRING_PROFILES_ACTIVE` environment variable. For example:
