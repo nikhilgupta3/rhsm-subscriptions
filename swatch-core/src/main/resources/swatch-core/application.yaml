@@ -139,6 +139,7 @@ rhsm-subscriptions:
   package_uri_mappings:
     # this mapping required here because it is used by our SecurityConfig, which is shared
     org.candlepin.subscriptions.resteasy: ${PATH_PREFIX}/${APP_NAME}/v1
+    org.candlepin.subscriptions.conduit.resteasy: ${PATH_PREFIX}/${APP_NAME}/v1
   datasource:
     url: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DATABASE}?reWriteBatchedInserts=true&stringtype=unspecified&sslmode=${DATABASE_SSL_MODE}&sslrootcert=${DATABASE_SSL_CERT}
     username: ${DATABASE_USERNAME}
