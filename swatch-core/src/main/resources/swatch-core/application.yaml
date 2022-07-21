@@ -9,8 +9,15 @@
 # The values can still be overridden using environment variables as they have a higher precedence
 # than the defaults defined here.
 KAFKA_BOOTSTRAP_HOST: ${clowder.kafka.brokers[0].hostname:localhost}
-KAFKA_BOOTSTRAP_PORT: ${clowder.kafka.brokers[0].port:9092}
-
+KAFKA_BOOTSTRAP_PORT: ${clowder.kafka.brokers[0].port:9094}
+KAFKA_USERNAME: ${clowder.kafka.brokers[0].sasl.username:client}
+KAFKA_PASSWORD: ${clowder.kafka.brokers[0].sasl.password:dummy}
+KAFKA_SASL_PROTOCOL: ${clowder.kafka.brokers[0].sasl.securityProtocol:SASL_SSL}
+KAFKA_SASL_MECHANISM: ${clowder.kafka.brokers[0].sasl.saslMechanism:PLAIN}
+KAFKA_SSL_KEYSTORE_LOCATION: ${clowder.kafka.brokers[0].FIXME:file:config/kafka/client.jks}
+KAFKA_SSL_KEYSTORE_PASSWORD: ${clowder.kafka.brokers[0].FIXME:password}
+KAFKA_SSL_TRUSTSTORE_LOCATION: ${clowder.kafka.brokers[0].FIXME:file:config/kafka/test-ca.jks}
+KAFKA_SSL_TRUSTSTORE_PASSWORD: ${clowder.kafka.brokers[0].FIXME:password}
 SERVER_PORT: ${clowder.publicPort:8000}
 
 # Values assigned to management.path-mapping.* shouldn't have a leading slash. However, Clowder
@@ -119,6 +126,22 @@ spring:
       # if no offset commit exists yet, set to earliest
       auto-offset-reset: earliest
       max-poll-records: 1
+    security:
+      protocol: ${KAFKA_SASL_PROTOCOL}
+    jaas:
+      enabled: true
+      loginModule: org.apache.kafka.common.security.plain.PlainLoginModule
+      options:
+        username: ${KAFKA_USERNAME}
+        password: ${KAFKA_PASSWORD}
+    ssl:
+      key-store-location: ${KAFKA_SSL_KEYSTORE_LOCATION}
+      key-store-password: ${KAFKA_SSL_KEYSTORE_PASSWORD}
+      trust-store-location: ${KAFKA_SSL_TRUSTSTORE_LOCATION}
+      trust-store-password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD}
+    properties:
+      sasl:
+        mechanism: ${KAFKA_SASL_MECHANISM}
 
 # See https://hawt.io/docs/configuration/ for details on built-in hawtio config
 hawtio:
