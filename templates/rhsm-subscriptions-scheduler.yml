@@ -15,8 +15,6 @@ parameters:
     value: INFO
   - name: METRICS_CRON_LOGGING_LEVEL
     value: INFO
-  - name: KAFKA_BOOTSTRAP_HOST
-    required: true
   - name: PURGE_SNAPSHOT_SCHEDULE
     value: 0 3 * * *
   - name: CAPTURE_SNAPSHOT_SCHEDULE
@@ -108,10 +106,30 @@ objects:
                       value: ${LOGGING_LEVEL_ROOT}
                     - name: LOGGING_LEVEL_ORG_CANDLEPIN
                       value: ${METRICS_CRON_LOGGING_LEVEL}
-                    - name: KAFKA_BOOTSTRAP_HOST
-                      value: ${KAFKA_BOOTSTRAP_HOST}
                     - name: OPENSHIFT_METERING_RANGE
                       value: ${OPENSHIFT_METERING_RANGE}
+                    - name: KAFKA_BOOTSTRAP_HOST
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: hostname
+                    - name: KAFKA_BOOTSTRAP_PORT
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: port
+                    - name: KAFKA_USERNAME
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: username
+                    - name: KAFKA_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: password
+                    - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+                      value: /kafka/ca.crt
                     - name: DATABASE_HOST
                       valueFrom:
                         secretKeyRef:
@@ -196,6 +214,8 @@ objects:
                     - mountPath: /tls/splunk.pem
                       name: splunk
                       subPath: splunk.pem
+                    - name: kafka-ca
+                      mountPath: /kafka
                 - name: token-refresher
                   image: ${TOKEN_REFRESHER_IMAGE}
                   args:
@@ -237,6 +257,9 @@ objects:
                 - name: splunk
                   secret:
                     secretName: splunk
+                - name: kafka-ca
+                  secret:
+                    secretName: kafka-ca
                 - name: logs
                   emptyDir:
   - apiVersion: batch/v1beta1
@@ -272,7 +295,27 @@ objects:
                     - name: LOGGING_LEVEL_ORG_CANDLEPIN
                       value: ${LOGGING_LEVEL}
                     - name: KAFKA_BOOTSTRAP_HOST
-                      value: ${KAFKA_BOOTSTRAP_HOST}
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: hostname
+                    - name: KAFKA_BOOTSTRAP_PORT
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: port
+                    - name: KAFKA_USERNAME
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: username
+                    - name: KAFKA_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: password
+                    - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+                      value: /kafka/ca.crt
                     - name: DATABASE_HOST
                       valueFrom:
                         secretKeyRef:
@@ -349,6 +392,8 @@ objects:
                     - mountPath: /var/log/app
                       name: logs
                       readOnly: true
+                    - name: kafka-ca
+                      mountPath: /kafka
                     - mountPath: /tls/splunk.pem
                       name: splunk
                       subPath: splunk.pem
@@ -356,6 +401,9 @@ objects:
                 - name: splunk
                   secret:
                     secretName: splunk
+                - name: kafka-ca
+                  secret:
+                    secretName: kafka-ca
                 - name: logs
                   emptyDir:
   - apiVersion: batch/v1beta1
@@ -390,10 +438,30 @@ objects:
                       value: ${LOGGING_LEVEL_ROOT}
                     - name: LOGGING_LEVEL_ORG_CANDLEPIN
                       value: ${LOGGING_LEVEL}
-                    - name: KAFKA_BOOTSTRAP_HOST
-                      value: ${KAFKA_BOOTSTRAP_HOST}
                     - name: HOURLY_TALLY_OFFSET
                       value: ${HOURLY_TALLY_OFFSET}
+                    - name: KAFKA_BOOTSTRAP_HOST
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: hostname
+                    - name: KAFKA_BOOTSTRAP_PORT
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: port
+                    - name: KAFKA_USERNAME
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: username
+                    - name: KAFKA_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: password
+                    - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+                      value: /kafka/ca.crt
                     - name: DATABASE_HOST
                       valueFrom:
                         secretKeyRef:
@@ -470,6 +538,8 @@ objects:
                     - mountPath: /var/log/app
                       name: logs
                       readOnly: true
+                    - name: kafka-ca
+                      mountPath: /kafka
                     - mountPath: /tls/splunk.pem
                       name: splunk
                       subPath: splunk.pem
@@ -477,6 +547,9 @@ objects:
                 - name: splunk
                   secret:
                     secretName: splunk
+                - name: kafka-ca
+                  secret:
+                    secretName: kafka-ca
                 - name: logs
                   emptyDir:
   - apiVersion: batch/v1beta1
@@ -511,10 +584,30 @@ objects:
                       value: ${LOGGING_LEVEL_ROOT}
                     - name: LOGGING_LEVEL_ORG_CANDLEPIN
                       value: ${LOGGING_LEVEL}
-                    - name: KAFKA_BOOTSTRAP_HOST
-                      value: ${KAFKA_BOOTSTRAP_HOST}
                     - name: EVENT_RECORD_RETENTION
                       value: ${EVENT_RECORD_RETENTION}
+                    - name: KAFKA_BOOTSTRAP_HOST
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: hostname
+                    - name: KAFKA_BOOTSTRAP_PORT
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: port
+                    - name: KAFKA_USERNAME
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: username
+                    - name: KAFKA_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: password
+                    - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+                      value: /kafka/ca.crt
                     - name: DATABASE_HOST
                       valueFrom:
                         secretKeyRef:
@@ -591,6 +684,8 @@ objects:
                     - mountPath: /var/log/app
                       name: logs
                       readOnly: true
+                    - name: kafka-ca
+                      mountPath: /kafka
                     - mountPath: /tls/splunk.pem
                       name: splunk
                       subPath: splunk.pem
@@ -598,6 +693,9 @@ objects:
                 - name: splunk
                   secret:
                     secretName: splunk
+                - name: kafka-ca
+                  secret:
+                    secretName: kafka-ca
                 - name: logs
                   emptyDir:
   - apiVersion: batch/v1beta1
@@ -632,10 +730,30 @@ objects:
                       value: ${LOGGING_LEVEL_ROOT}
                     - name: LOGGING_LEVEL_ORG_CANDLEPIN
                       value: ${LOGGING_LEVEL}
-                    - name: KAFKA_BOOTSTRAP_HOST
-                      value: ${KAFKA_BOOTSTRAP_HOST}
                     - name: SUBSCRIPTION_SYNC_ENABLED
                       value: ${SUBSCRIPTION_SYNC_ENABLED}
+                    - name: KAFKA_BOOTSTRAP_HOST
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: hostname
+                    - name: KAFKA_BOOTSTRAP_PORT
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: port
+                    - name: KAFKA_USERNAME
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: username
+                    - name: KAFKA_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: password
+                    - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+                      value: /kafka/ca.crt
                     - name: DATABASE_HOST
                       valueFrom:
                         secretKeyRef:
@@ -712,6 +830,8 @@ objects:
                     - mountPath: /var/log/app
                       name: logs
                       readOnly: true
+                    - name: kafka-ca
+                      mountPath: /kafka
                     - mountPath: /tls/splunk.pem
                       name: splunk
                       subPath: splunk.pem
@@ -719,6 +839,9 @@ objects:
                 - name: splunk
                   secret:
                     secretName: splunk
+                - name: kafka-ca
+                  secret:
+                    secretName: kafka-ca
                 - name: logs
                   emptyDir:
   - apiVersion: batch/v1beta1
@@ -756,7 +879,26 @@ objects:
                     - name: LOGGING_LEVEL_ORG_CANDLEPIN
                       value: ${LOGGING_LEVEL}
                     - name: KAFKA_BOOTSTRAP_HOST
-                      value: ${KAFKA_BOOTSTRAP_HOST}
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                    - name: KAFKA_BOOTSTRAP_PORT
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: port
+                    - name: KAFKA_USERNAME
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: username
+                    - name: KAFKA_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          name: mk-oauth
+                          key: password
+                    - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+                      value: /kafka/ca.crt
                     - name: DATABASE_HOST
                       valueFrom:
                         secretKeyRef:
@@ -815,6 +957,8 @@ objects:
                     - mountPath: /var/log/app
                       name: logs
                       readOnly: true
+                    - name: kafka-ca
+                      mountPath: /kafka
                     - mountPath: /tls/splunk.pem
                       name: splunk
                       subPath: splunk.pem
@@ -822,6 +966,9 @@ objects:
                 - name: splunk
                   secret:
                     secretName: splunk
+                - name: kafka-ca
+                  secret:
+                    secretName: kafka-ca
                 - name: logs
                   emptyDir:
                 - name: capacity-allowlist
