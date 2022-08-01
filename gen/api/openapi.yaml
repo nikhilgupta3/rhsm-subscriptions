@@ -1,0 +1,480 @@
+openapi: 3.0.2
+info:
+  description: REST interface for the internal-organization-sync service. Please note
+    any deprecated APIs. Our current deprecation policy is to keep deprecated APIs
+    around for at least 6 months.
+  title: internal-organizations-sync-api
+  version: 1.0.0
+servers:
+- url: /
+security:
+- PskIdentity: []
+paths:
+  /internal/rpc/syncOrg:
+    description: Trigger a sync for a given Org ID
+    post:
+      operationId: syncOrg
+      requestBody:
+        $ref: '#/components/requestBodies/OrgSyncRequestBody'
+      responses:
+        "200":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/DefaultResponse'
+          description: The request for syncing organization has completed successfully.
+        "400":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The server could could not process the current request.
+        "403":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The request was valid, but the request was refused by the server.
+        "404":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The requested resource was not found.
+        "500":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: An internal server error has occurred and is not recoverable.
+      summary: Sync organization for given org_id.
+      tags:
+      - internalOrganizations
+      x-contentType: application/json
+      x-accepts: application/vnd.api+json
+  /internal/rpc/syncAllOrgs:
+    description: Trigger a sync for all Organizations
+    post:
+      operationId: syncFullOrgList
+      responses:
+        "202":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/DefaultResponse'
+          description: The request for syncing all organizations is successfully running.
+        "403":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The request was valid, but the request was refused by the server.
+        "500":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: An internal server error has occurred and is not recoverable.
+      summary: Sync all organizations.
+      tags:
+      - internalOrganizations
+      x-accepts: application/vnd.api+json
+  /internal/organizations-sync-list:
+    delete:
+      operationId: removeOrgsFromSyncList
+      parameters:
+      - description: Comma separated list of org_ids. (Ex. 123,456,789)
+        explode: false
+        in: query
+        name: org_ids
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      responses:
+        "200":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/DefaultResponse'
+          description: The request for removing organizations from the sync list has
+            completed successfully.
+        "400":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The server could could not process the current request.
+        "403":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The request was valid, but the request was refused by the server.
+        "404":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The requested resource was not found.
+        "500":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: An internal server error has occurred and is not recoverable.
+      summary: Remove a given list of organizations from the database sync list.
+      tags:
+      - internalOrganizations
+      x-accepts: application/vnd.api+json
+    description: Initiate altering database sync list by either adding or removing
+      a given list of Org IDs
+    post:
+      operationId: addOrgsToSyncList
+      parameters:
+      - description: Comma separated list of org_ids. (Ex. 123,456,789)
+        explode: false
+        in: query
+        name: org_ids
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      responses:
+        "200":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/DefaultResponse'
+          description: The request for adding organizations to the sync list has completed
+            successfully.
+        "400":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The server could could not process the current request.
+        "403":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The request was valid, but the request was refused by the server.
+        "500":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: An internal server error has occurred and is not recoverable.
+      summary: Add a given list of organizations to the database sync list.
+      tags:
+      - internalOrganizations
+      x-accepts: application/vnd.api+json
+  /internal/organizations-sync-list/{org_id}:
+    description: Initiate a search to check if given Org ID is in sync list
+    get:
+      operationId: hasOrgInSyncList
+      parameters:
+      - explode: false
+        in: path
+        name: org_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/OrgExistsResponse'
+          description: The request to check the sync list for given org ID has successfully
+            completed.
+        "400":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The server could could not process the current request.
+        "403":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The request was valid, but the request was refused by the server.
+        "404":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The requested resource was not found.
+        "500":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: An internal server error has occurred and is not recoverable.
+      summary: Check if given Org ID is in the database sync list.
+      tags:
+      - internalOrganizations
+      x-accepts: application/vnd.api+json
+  /internal/organizations/{org_id}/inventory:
+    description: Initiate viewing conduit representation of an org's systems from
+      RHSM
+    get:
+      operationId: getInventoryForOrg
+      parameters:
+      - explode: false
+        in: path
+        name: org_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The number of items to skip before starting to collect the result
+          set
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+        style: form
+      - description: The numbers of items to return
+        explode: true
+        in: query
+        name: limit
+        required: true
+        schema:
+          maximum: 1000
+          minimum: 1
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/OrgInventory'
+        "400":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The server could could not process the current request.
+        "403":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The request was valid, but the request was refused by the server.
+        "404":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: The requested resource was not found.
+        "500":
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: An internal server error has occurred and is not recoverable.
+      summary: See conduit representation of an org's systems from RHSM.
+      tags:
+      - internalOrganizations
+      x-accepts: application/vnd.api+json
+  /internal-organizations-sync-openapi.json:
+    get:
+      description: Get the OpenAPI spec in JSON format.
+      operationId: getOpenApiJson
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+          description: The request to get the OpenAPI JSON was successful.
+      tags:
+      - root
+      x-accepts: application/json
+  /internal-organizations-sync-openapi.yaml:
+    get:
+      description: Get the OpenAPI spec in YAML format.
+      operationId: getOpenApiYaml
+      responses:
+        "200":
+          content:
+            application/x-yaml:
+              schema:
+                type: string
+          description: The request to get the OpenAPI YAML was successful.
+      tags:
+      - root
+      x-accepts: application/x-yaml
+components:
+  requestBodies:
+    OrgSyncRequestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OrgSyncRequest'
+      description: ID of Organization to sync
+      required: true
+  schemas:
+    ConsumerInventory:
+      properties:
+        subscription_manager_id:
+          type: string
+        insights_id:
+          type: string
+        org_id:
+          type: string
+        account_number:
+          type: string
+        os_name:
+          type: string
+        os_version:
+          type: string
+        os_kernel_version:
+          type: string
+        bios_vendor:
+          type: string
+        bios_version:
+          type: string
+        bios_uuid:
+          type: string
+        ip_addresses:
+          items:
+            type: string
+          type: array
+        fqdn:
+          type: string
+        display_name:
+          type: string
+        mac_addresses:
+          items:
+            type: string
+          type: array
+        cpu_sockets:
+          type: integer
+        cpu_cores:
+          type: integer
+        cores_per_socket:
+          type: integer
+        last_checkin:
+          format: date-time
+          type: string
+        memory:
+          format: int64
+          type: integer
+        system_memory_bytes:
+          format: int64
+          type: integer
+        architecture:
+          type: string
+        cloud_provider:
+          type: string
+        is_virtual:
+          type: boolean
+        vm_host:
+          type: string
+        vm_host_uuid:
+          type: string
+        guest_id:
+          type: string
+        rh_prod:
+          items:
+            type: string
+          type: array
+        sys_purpose_role:
+          type: string
+        sys_purpose_sla:
+          type: string
+        sys_purpose_usage:
+          type: string
+        sys_purpose_addons:
+          items:
+            type: string
+          type: array
+        sys_purpose_units:
+          type: string
+        billing_model:
+          type: string
+      required:
+      - org_id
+      - subscription_manager_id
+    DefaultResponse:
+      properties:
+        status:
+          type: string
+    OrgExistsResponse:
+      properties:
+        exists_in_list:
+          type: boolean
+    OrgSyncRequest:
+      example:
+        org_id: org_id
+      properties:
+        org_id:
+          type: string
+      type: object
+    OrgInventory:
+      properties:
+        links:
+          $ref: '#/components/schemas/PageLinks'
+        consumer_inventories:
+          items:
+            $ref: '#/components/schemas/ConsumerInventory'
+          type: array
+    PageLinks:
+      properties:
+        first:
+          type: string
+        last:
+          type: string
+        previous:
+          type: string
+        next:
+          type: string
+      required:
+      - first
+      - last
+    Errors:
+      properties:
+        errors:
+          items:
+            $ref: '#/components/schemas/Error'
+          type: array
+      required:
+      - errors
+    Error:
+      properties:
+        status:
+          type: string
+        code:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+      required:
+      - code
+      - status
+      - title
+  securitySchemes:
+    PskIdentity:
+      description: |
+        Psk header containing Pre Shared Key. Contains an
+        UUID string:
+        ```
+        c9a98753-2092-4617-b226-5c2653330b3d
+        ```
+      in: header
+      name: x-rh-swatch-psk
+      type: apiKey
+
