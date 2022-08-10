@@ -114,7 +114,7 @@ objects:
 - apiVersion: cloud.redhat.com/v1alpha1
   kind: ClowdApp
   metadata:
-    name: rhsm
+    name: swatch-tally
   spec:
     # The name of the ClowdEnvironment providing the services
     envName: ${ENV_NAME}
@@ -137,16 +137,16 @@ objects:
         partitions: 3
         topicName: platform.rhsm-subscriptions.billable-usage
     # Creates a database if local mode, or uses RDS in production
-    database:
-      # Must specify both a name and a major postgres version
-      name: rhsm-db
-      version: 12
+    # database:
+    #   # Must specify both a name and a major postgres version
+    #   name: rhsm-db
+    #   version: 12
 
     pullSecrets:
       name: ${IMAGE_PULL_SECRET}
 
     deployments:
-      - name: swatch-tally
+      - name: service
         minReplicas: 1
         webServices:
           public:
@@ -513,9 +513,9 @@ objects:
             - name: logs
               emptyDir:
 
-      - name: hourly-tally
+      - name: hourly
         schedule: ${CAPTURE_HOURLY_SNAPSHOT_SCHEDULE}
-        activeDeadlineSeconds: 4200
+        activeDeadlineSeconds: 1800
         successfulJobsHistoryLimit: 2
         restartPolicy: Never
         podSpec:
