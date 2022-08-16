@@ -59,11 +59,39 @@
 
         - name: swatch-producer-aws
           host: local
-          repo: $(pwd)/rhsm-subscriptions/swatch-producer-aws
+          repo: $(pwd)/swatch-producer-aws
           path: /deploy/clowdapp.yaml
           parameters:
             REPLICAS: 1
             swatch-producer-aws/IMAGE: quay.io/cloudservices/swatch-producer-aws
+
+        - name: swatch-system-conduit
+          host: local
+          repo: $(pwd)/swatch-system-conduit
+          path: /deploy/clowdapp.yaml
+          parameters:
+            REPLICAS: 1
+            swatch-system-conduit/IMAGE: quay.io/cloudservices/swatch-system-conduit
+
+        - name: swatch-api
+          host: local
+          repo: $(pwd)/swatch-api
+          path: /deploy/clowdapp.yaml
+          parameters:
+            REPLICAS: 1
+            DEV_MODE: "true"
+            swatch-api/IMAGE: quay.io/cloudservices/rhsm-subscriptions
+            RHSM_RBAC_USE_STUB: "true"
+
+        - name: swatch-tally
+          host: local
+          repo: $(pwd)/swatch-tally
+          path: /deploy/clowdapp.yaml
+          parameters:
+            REPLICAS: 1
+            DEV_MODE: "true"
+            swatch-tally/IMAGE: quay.io/cloudservices/rhsm-subscriptions
+            RHSM_RBAC_USE_STUB: "true"
     BONFIRE
     ```
 
