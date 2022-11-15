@@ -20,6 +20,7 @@
  */
 package org.candlepin.subscriptions.task.queue.kafka;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
@@ -33,6 +34,7 @@ import org.candlepin.subscriptions.task.queue.kafka.message.TaskMessage;
 import org.candlepin.subscriptions.util.KafkaConsumerRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -43,6 +45,8 @@ import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties.AckMode;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 
 /**
  * Encapsulates the creation of all components required for producing and consuming Kafka messages
@@ -57,16 +61,49 @@ public class KafkaConfigurator {
     this.consumerRegistry = consumerRegistry;
   }
 
+
+  @Bean
+  public ProducerFactory<String, TaskMessage> basicProducerFactory(
+      KafkaProperties kafkaProperties, ObjectMapper objectMapper) {
+
+
+    Map<String, Object> properties = kafkaProperties.buildProducerProperties();
+    properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+
+    DefaultKafkaProducerFactory<String, TaskMessage> factory =
+        new DefaultKafkaProducerFactory<>(properties);
+
+    /*
+    Use our customized ObjectMapper. Notably, the spring-kafka default ObjectMapper writes dates as
+    timestamps, which produces messages not compatible with JSON-B deserialization.
+     */
+    factory.setValueSerializer(new JsonSerializer<>(objectMapper));
+    return factory;
+  }
+
   public DefaultKafkaProducerFactory<String, TaskMessage> defaultProducerFactory(
       KafkaProperties kafkaProperties) {
     Map<String, Object> producerConfig = kafkaProperties.buildProducerProperties();
     boolean bypassRegistry = bypassSchemaRegistry(producerConfig);
 
     producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+
     producerConfig.put(
         ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
         bypassRegistry ? AvroSerializer.class : KafkaAvroSerializer.class);
+
     return new DefaultKafkaProducerFactory<>(producerConfig);
+  }
+
+
+  @Bean
+  ConsumerFactory<String, TaskMessage> basicConsumerFactory(
+      KafkaProperties kafkaProperties) {
+    return new DefaultKafkaConsumerFactory<>(
+        kafkaProperties.buildConsumerProperties(),
+        new StringDeserializer(),
+        new JsonDeserializer<>(TaskMessage.class));
   }
 
   public ConsumerFactory<String, TaskMessage> defaultConsumerFactory(

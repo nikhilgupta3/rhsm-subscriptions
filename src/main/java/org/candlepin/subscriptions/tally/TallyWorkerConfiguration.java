@@ -172,6 +172,8 @@ public class TallyWorkerConfiguration {
   @Bean
   public ProducerFactory<String, TallySummary> tallySummaryProducerFactory(
       KafkaProperties kafkaProperties, ObjectMapper objectMapper) {
+
+
     DefaultKafkaProducerFactory<String, TallySummary> factory =
         new DefaultKafkaProducerFactory<>(getProducerProperties(kafkaProperties));
     /*

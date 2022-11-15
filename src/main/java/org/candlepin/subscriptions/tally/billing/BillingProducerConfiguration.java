@@ -131,6 +131,9 @@ public class BillingProducerConfiguration {
       KafkaProperties kafkaProperties, ObjectMapper objectMapper) {
     DefaultKafkaProducerFactory<String, BillableUsage> factory =
         new DefaultKafkaProducerFactory<>(getProducerProperties(kafkaProperties));
+
+    //TODO
+
     /*
     Use our customized ObjectMapper. Notably, the spring-kafka default ObjectMapper writes dates as
     timestamps, which produces messages not compatible with JSON-B deserialization.
