@@ -121,15 +121,27 @@ public class KafkaConfigurator {
 
     // Configure the error handling delegate deserializer classes based on whether the
     // schema registry is being bypassed.
-    if (bypassRegistry) {
-      consumerConfig.put(
-          ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, AvroDeserializer.class);
-      consumerConfig.put(AvroDeserializer.TARGET_TYPE_CLASS, TaskMessage.class);
-    } else {
-      consumerConfig.put(
-          ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, KafkaAvroDeserializer.class);
-      consumerConfig.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true);
+
+    try{
+      //TODO JSON serioalizer....and try to make a class that delegates instead of just shoving it all in here
+
+    }catch (Exception e){
+
+      if (bypassRegistry) {
+        //TODO this is the one that's currenty used
+        consumerConfig.put(
+            ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, AvroDeserializer.class);
+        consumerConfig.put(AvroDeserializer.TARGET_TYPE_CLASS, TaskMessage.class);
+      } else {
+        //this is here but not in use
+        consumerConfig.put(
+            ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, KafkaAvroDeserializer.class);
+        consumerConfig.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, true);
+      }
+
+
     }
+
     return new DefaultKafkaConsumerFactory<>(consumerConfig);
   }
 
